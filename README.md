@@ -44,6 +44,8 @@ project_root/ <br />
 
 4. Ensure you have MySQL installed and running, and create the database specified in `DB_NAME`.
 
+5. Replace the arbitrary values with real values for the environment variables in the `.env` file.
+
 ## Usage
 
 Run the main script: 
