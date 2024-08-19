@@ -4,7 +4,23 @@ from typing import Dict, Optional
 import logging
 
 class DatabaseHandler:
+    """
+    Handles database operations for storing employee data.
+
+    This class manages the connection to a MySQL database and provides methods
+    for creating tables and inserting employee data.
+    """
+
     def __init__(self, host: str, user: str, password: str, database: str):
+        """
+        Initialize the DatabaseHandler with connection parameters.
+
+        Args:
+            host (str): The database server host.
+            user (str): The database user.
+            password (str): The database password.
+            database (str): The name of the database to use.
+        """
         self.config = {
             "host": host,
             "user": user,
@@ -14,10 +30,13 @@ class DatabaseHandler:
 
     def connect(self) -> Optional[mysql.connector.MySQLConnection]:
         """
-        Establish a connection to the database.
-        
+        Establish a connection to the MySQL database.
+
         Returns:
             Optional[mysql.connector.MySQLConnection]: A database connection object if successful, None otherwise.
+
+        Raises:
+            mysql.connector.Error: If connection fails.
         """
         try:
             return mysql.connector.connect(**self.config)
@@ -28,12 +47,17 @@ class DatabaseHandler:
     def create_table(self, connection: mysql.connector.MySQLConnection) -> bool:
         """
         Create the AVANTI_EMPLOYEES table if it doesn't exist.
-        
+
+        This method defines the schema for the employee table and executes the CREATE TABLE query.
+
         Args:
             connection (mysql.connector.MySQLConnection): An active database connection.
-        
+
         Returns:
             bool: True if the table was created successfully or already exists, False otherwise.
+
+        Raises:
+            mysql.connector.Error: If there's an error executing the SQL query.
         """
         create_table_query = """
         CREATE TABLE IF NOT EXISTS AVANTI_EMPLOYEES (
@@ -60,13 +84,19 @@ class DatabaseHandler:
     def insert_data(self, connection: mysql.connector.MySQLConnection, data: Dict) -> bool:
         """
         Insert or update employee data in the AVANTI_EMPLOYEES table.
-        
+
+        This method uses an INSERT ... ON DUPLICATE KEY UPDATE query to handle both
+        new insertions and updates to existing records.
+
         Args:
             connection (mysql.connector.MySQLConnection): An active database connection.
-            data (Dict): The data to insert, expected to have an 'employees' key.
-        
+            data (Dict): The data to insert, expected to have an 'employees' key with a list of employee records.
+
         Returns:
             bool: True if the data was inserted successfully, False otherwise.
+
+        Raises:
+            mysql.connector.Error: If there's an error executing the SQL query.
         """
         insert_query = """
         INSERT INTO AVANTI_EMPLOYEES 
@@ -85,6 +115,7 @@ class DatabaseHandler:
         """
         try:
             with connection.cursor() as cursor:
+                # Execute the query for each employee record
                 cursor.executemany(insert_query, data["employees"])
             connection.commit()
             return True
