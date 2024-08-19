@@ -1,4 +1,4 @@
-# Employee Data Management System
+# Cypress Interview Coding Assessment  
 
 ## Overview
 
@@ -78,7 +78,7 @@ To check code style:
 ## Design Decisions and Rationale
 Throughout the development process, I worked closely with Claude AI, using thoughtful prompts and an iterative approach to arrive at the design decisions that shaped this project. Here’s an overview of those decisions and the rationale behind them:
 
-1. **Modular Structure**: I decided to divide the project into separate modules (`api_client.py`, `csv_handler.py`, `database_handler.py`) to promote separation of concerns. By working with Claude, I was able to refine this structure, making the code more maintainable and testable. This modularity allows each component to function independently, which simplifies both development and testing.
+1. **Modular Structure**: I decided to divide the project into separate modules (`api_client.py`, `csv_handler.py`, `database_handler.py`) to promote the separation of concerns. By working with Claude, I was able to refine this structure, making the code more maintainable and testable. This modularity allows each component to function independently, which simplifies both development and testing.
 
 2. **Type Hints**: With Claude's guidance, I incorporated type hints throughout the code. This decision was driven by a desire to improve code readability and catch type-related errors early in the development process. Using type hints also made it easier to understand the expected input and output of functions at a glance.
 
