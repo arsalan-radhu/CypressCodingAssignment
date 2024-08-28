@@ -32,6 +32,41 @@ project_root/ <br />
 ├── requirements.txt<br />
 └── README.md<br />
 
+## Project Flow 
+```mermaid
+graph TD
+    A[main.py] --> B[Load Environment Variables]
+    B --> C[Initialize APIClient]
+    C --> D[Query API]
+    D --> E{Data Retrieved?}
+    E -->|Yes| F[Save to CSV]
+    E -->|No| Z[Exit]
+    F --> G[Initialize DatabaseHandler]
+    G --> H[Connect to Database]
+    H --> I{Connection Successful?}
+    I -->|Yes| J[Create Table]
+    I -->|No| Z
+    J --> K{Table Created?}
+    K -->|Yes| L[Insert Data]
+    K -->|No| Z
+    L --> M[Process Completed]
+    
+    subgraph api_client.py
+    C
+    D
+    end
+    
+    subgraph csv_handler.py
+    F
+    end
+    
+    subgraph database_handler.py
+    G
+    H
+    J
+    L
+    end
+```
 ## Setup Instructions
 
 1. Clone the repository: <br />
