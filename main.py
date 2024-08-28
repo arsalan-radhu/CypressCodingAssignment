@@ -83,8 +83,15 @@ def main() -> None:
             return
 
         # Insert data
-        logging.info("Inserting data into database...")
-        insert_success = db_handler.insert_data(connection, data)
+        # logging.info("Inserting data into database...")
+        # insert_success = db_handler.insert_data(connection, data)
+        # if insert_success:
+        #     logging.info("Data successfully inserted into database")
+        # else:
+        #     logging.error("Failed to insert data into database")
+        
+        logging.info("Inserting data from CSV into database...")
+        insert_success = db_handler.insert_data_from_csv(connection, CSV_FILENAME)
         if insert_success:
             logging.info("Data successfully inserted into database")
         else:

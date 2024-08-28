@@ -1,3 +1,4 @@
+import csv
 import mysql.connector
 from mysql.connector import Error
 from typing import Dict, Optional
@@ -81,27 +82,55 @@ class DatabaseHandler:
             logging.error(f"Error creating table: {e}")
             return False
 
-    def insert_data(self, connection: mysql.connector.MySQLConnection, data: Dict) -> bool:
-        """
-        Insert or update employee data in the AVANTI_EMPLOYEES table.
 
-        This method uses an INSERT ... ON DUPLICATE KEY UPDATE query to handle both
-        new insertions and updates to existing records.
+    # def insert_data(self, connection: mysql.connector.MySQLConnection, data: Dict) -> bool:
+    #     """
+    #     Insert or update employee data in the AVANTI_EMPLOYEES table.
 
-        Args:
-            connection (mysql.connector.MySQLConnection): An active database connection.
-            data (Dict): The data to insert, expected to have an 'employees' key with a list of employee records.
+    #     This method uses an INSERT ... ON DUPLICATE KEY UPDATE query to handle both
+    #     new insertions and updates to existing records.
 
-        Returns:
-            bool: True if the data was inserted successfully, False otherwise.
+    #     Args:
+    #         connection (mysql.connector.MySQLConnection): An active database connection.
+    #         data (Dict): The data to insert, expected to have an 'employees' key with a list of employee records.
 
-        Raises:
-            mysql.connector.Error: If there's an error executing the SQL query.
-        """
+    #     Returns:
+    #         bool: True if the data was inserted successfully, False otherwise.
+
+    #     Raises:
+    #         mysql.connector.Error: If there's an error executing the SQL query.
+    #     """
+    #     insert_query = """
+    #     INSERT INTO AVANTI_EMPLOYEES 
+    #     (empNo, givenName, surname, preferredName, initial, positionName, positionNameFr, photoRevision, active, email) 
+    #     VALUES (%(empNo)s, %(givenName)s, %(surname)s, %(preferredName)s, %(initial)s, %(positionName)s, %(positionNameFr)s, %(photoRevision)s, %(active)s, %(email)s)
+    #     ON DUPLICATE KEY UPDATE
+    #     givenName = VALUES(givenName),
+    #     surname = VALUES(surname),
+    #     preferredName = VALUES(preferredName),
+    #     initial = VALUES(initial),
+    #     positionName = VALUES(positionName),
+    #     positionNameFr = VALUES(positionNameFr),
+    #     photoRevision = VALUES(photoRevision),
+    #     active = VALUES(active),
+    #     email = VALUES(email)
+    #     """
+    #     try:
+    #         with connection.cursor() as cursor:
+    #             # Execute the query for each employee record
+    #             cursor.executemany(insert_query, data["employees"])
+    #         connection.commit()
+    #         return True
+    #     except Error as e:
+    #         logging.error(f"Error inserting data: {e}")
+    #         connection.rollback()
+    #         return False
+        
+    def insert_data_from_csv(self, connection: mysql.connector.MySQLConnection, csv_filename: str) -> bool:
         insert_query = """
         INSERT INTO AVANTI_EMPLOYEES 
         (empNo, givenName, surname, preferredName, initial, positionName, positionNameFr, photoRevision, active, email) 
-        VALUES (%(empNo)s, %(givenName)s, %(surname)s, %(preferredName)s, %(initial)s, %(positionName)s, %(positionNameFr)s, %(photoRevision)s, %(active)s, %(email)s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE
         givenName = VALUES(givenName),
         surname = VALUES(surname),
@@ -115,11 +144,23 @@ class DatabaseHandler:
         """
         try:
             with connection.cursor() as cursor:
-                # Execute the query for each employee record
-                cursor.executemany(insert_query, data["employees"])
+                with open(csv_filename, 'r') as csvfile:
+                    csv_reader = csv.DictReader(csvfile)
+                    for row in csv_reader:
+                        # Convert 'active' to boolean and 'photoRevision' to int
+                        row['active'] = row['active'].lower() == 'true'
+                        row['photoRevision'] = int(row['photoRevision'])
+                        cursor.execute(insert_query, (
+                            row['empNo'], row['givenName'], row['surname'], row['preferredName'],
+                            row['initial'], row['positionName'], row['positionNameFr'],
+                            row['photoRevision'], row['active'], row['email']
+                        ))
             connection.commit()
             return True
         except Error as e:
             logging.error(f"Error inserting data: {e}")
             connection.rollback()
             return False
+        except IOError as e:
+            logging.error(f"Error reading CSV file: {e}")
+            return False   
