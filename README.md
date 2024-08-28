@@ -32,6 +32,79 @@ project_root/ <br />
 ├── requirements.txt<br />
 └── README.md<br />
 
+## Project Flow Main Branch
+```mermaid
+graph TD
+    A[main.py] --> B[Load Environment Variables]
+    B --> C[Initialize APIClient]
+    C --> D[Query API]
+    D --> E{Data Retrieved?}
+    E -->|Yes| F[Save to CSV]
+    E -->|No| Z[Exit]
+    F --> G[Initialize DatabaseHandler]
+    G --> H[Connect to Database]
+    H --> I{Connection Successful?}
+    I -->|Yes| J[Create Table]
+    I -->|No| Z
+    J --> K{Table Created?}
+    K -->|Yes| L[Insert Data]
+    K -->|No| Z
+    L --> M[Process Completed]
+    
+    subgraph api_client.py
+    C
+    D
+    end
+    
+    subgraph csv_handler.py
+    F
+    end
+    
+    subgraph database_handler.py
+    G
+    H
+    J
+    L
+    end
+```
+## Project Flow Alternate Branch
+
+```mermaid
+graph TD
+    A[main.py] --> B[Load Environment Variables]
+    B --> C[Initialize APIClient]
+    C --> D[Query API]
+    D --> E{Data Retrieved?}
+    E -->|Yes| F[Save to CSV]
+    E -->|No| Z[Exit]
+    F --> G{CSV Created Successfully?}
+    G -->|Yes| H[Initialize DatabaseHandler]
+    G -->|No| Z
+    H --> I[Connect to Database]
+    I --> J{Connection Successful?}
+    J -->|Yes| K[Create Table]
+    J -->|No| Z
+    K --> L{Table Created?}
+    L -->|Yes| M[Insert Data from CSV]
+    L -->|No| Z
+    M --> N[Process Completed]
+    
+    subgraph api_client.py
+    C
+    D
+    end
+    
+    subgraph csv_handler.py
+    F
+    end
+    
+    subgraph database_handler.py
+    H
+    I
+    K
+    M
+    end
+```
 ## Setup Instructions
 
 1. Clone the repository: <br />
